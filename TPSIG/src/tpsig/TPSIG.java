@@ -39,10 +39,13 @@ public class TPSIG {
             System.exit(1);
         }
 
-        PreparedStatement stmt = connection.prepareStatement("Select * from nodes where name like '%" + input + "'");
+        // TODO : prevent SQL Injection
+        PreparedStatement stmt = connection.prepareStatement("SELECT tags->'name', ST_X(geom), ST_Y(geom) FROM nodes WHERE tags->'name' LIKE '"+input+"'");
         ResultSet res = stmt.executeQuery();
         while (res.next()) {
-            System.out.println("colonne 1 = " + res.getInt(1) + "; colonne 2 = " + ((PGgeometry) res.getObject(2)).getGeometry());
+            System.out.println("name = " + res.getString(1) + "; X = "+res.getDouble(2)+"; Y = "+res.getDouble(3));
+                    /* We could use Point from http://intranet.ensimag.fr/KIOSK/Matieres/5MMSICP/SIG/postgis-api/org/postgis/Point.html 
+                     * ((PGgeometry) res.getObject(2)).getGeometry()); */
         }
 
     }
