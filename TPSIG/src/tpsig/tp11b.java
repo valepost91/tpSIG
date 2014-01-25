@@ -32,13 +32,23 @@ public class tp11b {
         Connection connection;
 
         connection = getConnection();
+		
+		double raduisSound = 0.001;
         
         // TODO : try to set the geometry as a parameter
-		String request = "SELECT linestring FROM ways WHERE exist(tags,'railway');";
+		String request = "SELECT w.linestring FROM ways w WHERE exist(w.tags,'railway');";
 		DrawLineByRequest(request, map, Color.BLUE);
-		request = "SELECT ST_Buffer(ST_Transform(ST_SRID(SELECT linestring FROM ways WHERE exist(tags,'railway'),10)));";
+		request = "SELECT ST_Buffer(geometry(w.linestring)," + raduisSound + ") FROM ways w WHERE exist(w.tags,'railway') AND w.tags->'railway'='tram';";
 		DrawLineByRequest(request, map, Color.RED);
-		request = "SELECT linestring FROM ways WHERE exist(tags,'highway');";
+		request = "SELECT ST_Buffer(geometry(w.linestring)," + raduisSound + ") FROM ways w WHERE exist(w.tags,'railway') AND w.tags->'railway'='rail';";
+		DrawLineByRequest(request, map, Color.RED);
+		
+		//request = "SELECT ST_Intersects(ST_Buffer(geometry(w.linestring)," + raduisSound + "),geometry(b.linestring)) FROM ways w, ways b WHERE exist(w.tags,'railway') AND w.tags->'railway'='rail' AND exist(b.tags,'building');";
+		//DrawLineByRequest(request, map, Color.RED);
+		
+		request = "SELECT w.linestring FROM ways w WHERE exist(w.tags,'highway');";
+		DrawLineByRequest(request, map, Color.BLACK);
+		request = "SELECT w.linestring FROM ways w WHERE exist(w.tags,'building');";
 		DrawLineByRequest(request, map, Color.BLACK);
 		
 		
@@ -52,7 +62,7 @@ public class tp11b {
 		if(request.endsWith(";")) {
 			request = request.substring(0, request.length() - 1);
 		}
-		String r = request + " AND ST_Intersects(bbox,ST_SetSRID(ST_MakeBox2D(ST_Point(5.7,45.1),ST_Point(5.8,45.2)),4326));";
+		String r = request + " AND ST_Intersects(w.bbox,ST_SetSRID(ST_MakeBox2D(ST_Point(5.7,45.1),ST_Point(5.8,45.2)),4326));";
 		System.out.println(r);
 		PreparedStatement stmt = connection.prepareStatement(r);
         ResultSet res = stmt.executeQuery();
@@ -61,8 +71,7 @@ public class tp11b {
             Geometry geom = ((PGgeometry) res.getObject(1)).getGeometry();
             int nb = geom.numPoints();
 			
-			LineString l = new LineString();
-			l.drawColor = color;
+			LineString l = new LineString(color);
             org.postgis.Point p;
             for(int i = 0;i<nb;i++) {
                 p = geom.getPoint(i);
