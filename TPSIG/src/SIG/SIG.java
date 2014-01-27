@@ -4,6 +4,7 @@
  */
 package SIG;
 
+import database.Utils;
 import java.util.Scanner;
 import static database.Utils.getConnection;
 import geoexplorer.gui.MapPanel;
@@ -41,7 +42,7 @@ public class SIG {
             System.out.println("b : Voir Batiments (question 10b)");
             System.out.println("D : Voir Départements (question 10c)");
             System.out.println("s : Voir Ecoles (question 11a)");
-            System.out.println("n : Voir Nuissance sonore (question 11b)");
+            System.out.println("n : Voir Nuisance sonore (question 11b)");
             System.out.println("d : Voir densité (question 11c)");
 
             choice = lectureClavier.next();
@@ -72,7 +73,7 @@ public class SIG {
             }
             //Clear the map
             map.removeAll();
-
         }
+        connection.close();
     }
 }
