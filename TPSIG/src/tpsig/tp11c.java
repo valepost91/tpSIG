@@ -56,43 +56,44 @@ public class tp11c {
         for (int x = 0; x < square_nb; x++) {
             for (int y = 0; y < square_nb; y++) {
                 LineString l = new LineString();
-                Integer bidule = y / square_nb;
-                Integer truc = x / square_nb;
-                //Point 1
-                l.addPoint(new Point(GLon_a + ((GLon_b - GLon_a) * x / square_nb), GLat_a + ((GLat_b - GLat_a) * y / square_nb)));
-
-                //Point 2
-                l.addPoint(new Point(GLon_a + ((GLon_b - GLon_a) * (x + 1) / square_nb), GLat_a + ((GLat_b - GLat_a) * y / square_nb)));
-
-
-                // Point 3
-                l.addPoint(new Point(GLon_a + ((GLon_b - GLon_a) * (x + 1) / square_nb), GLat_a + ((GLat_b - GLat_a) * (y + 1) / square_nb)));
-
-
-                //Point 4
-                l.addPoint(new Point(GLon_a + ((GLon_b - GLon_a) * x / square_nb), GLat_a + ((GLat_b - GLat_a) * (y + 1) / square_nb)));
-                //Point 1
-                l.addPoint(new Point(GLon_a + ((GLon_b - GLon_a) * x / square_nb), GLat_a + ((GLat_b - GLat_a) * y / square_nb)));
+                Point x1 = new Point(GLon_a + ((GLon_b - GLon_a) * x / square_nb),
+                        GLat_a + ((GLat_b - GLat_a) * y / square_nb));
+                Point x2 = new Point(GLon_a + ((GLon_b - GLon_a) * (x + 1)
+                        / square_nb), GLat_a + ((GLat_b - GLat_a) * y / square_nb));
+                Point x3 = new Point(GLon_a + ((GLon_b - GLon_a) * (x + 1)
+                        / square_nb), GLat_a + ((GLat_b - GLat_a) * (y + 1) / square_nb));
+                Point x4 = new Point(GLon_a + ((GLon_b - GLon_a) * x / square_nb),
+                        GLat_a + ((GLat_b - GLat_a) * (y + 1) / square_nb));
+                //line starts at x1
+                l.addPoint(x1);
+                //x1 to x2
+                l.addPoint(x2);
+                //x2 to x3
+                l.addPoint(x3);
+                //x3 to x4
+                l.addPoint(x4);
+                //x4 to x1
+                l.addPoint(x1);
                 map.addPrimitive(l);
 
             }
         }
 
         /*
-         // TODO : try to set the geometry as a parameter
-         PreparedStatement stmt = connection.prepareStatement("SELECT linestring FROM ways WHERE exist(tags,'highway') AND ST_Intersects(bbox,ST_SetSRID(ST_MakeBox2D(ST_Point(5.7,45.1),ST_Point(5.8,45.2)),4326));");
-         ResultSet res = stmt.executeQuery();
-         while (res.next()) {
-         Geometry geom = ((PGgeometry) res.getObject(1)).getGeometry();
-         int nb = geom.numPoints();
-         LineString l = new LineString();
-         org.postgis.Point p;
-         for(int i = 0;i<nb;i++) {
-         p = geom.getPoint(i);
-         l.addPoint(new Point(p.x,p.y));
-         }
-         map.addPrimitive(l);
-         }
+        // TODO : try to set the geometry as a parameter
+        PreparedStatement stmt = connection.prepareStatement("SELECT linestring FROM ways WHERE exist(tags,'highway') AND ST_Intersects(bbox,ST_SetSRID(ST_MakeBox2D(ST_Point(5.7,45.1),ST_Point(5.8,45.2)),4326));");
+        ResultSet res = stmt.executeQuery();
+        while (res.next()) {
+        Geometry geom = ((PGgeometry) res.getObject(1)).getGeometry();
+        int nb = geom.numPoints();
+        LineString l = new LineString();
+        org.postgis.Point p;
+        for(int i = 0;i<nb;i++) {
+        p = geom.getPoint(i);
+        l.addPoint(new Point(p.x,p.y));
+        }
+        map.addPrimitive(l);
+        }
          */
     }
 }
