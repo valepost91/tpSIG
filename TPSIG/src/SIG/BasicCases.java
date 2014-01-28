@@ -113,17 +113,16 @@ public class BasicCases {
 	 * sur la carte les valeurs (utilisez des attributs graphiques tels que la couleur, ou autre).*/
 
 	public static void showSchools(Connection connection, MapPanel map) throws SQLException {
-		String request = "SELECT linestring FROM quartier Q , ways W WHERE ST_Intersects(W.bbox,ST_Transform(Q.the_geom,4326)) ";
-		DrawLineByRequest(connection, request, map, Color.BLACK);
+		allRoads(connection, map);
 		int i = 30;
 		Color c = new Color(i, i, i);
 		PreparedStatement stmt = connection.prepareStatement("select id from quartier;");
 		ResultSet res = stmt.executeQuery();
 
 		while (res.next()) {
-			request = "SELECT linestring FROM quartier Q , ways W WHERE ST_Intersects(W.bbox,ST_Transform(Q.the_geom,4326)) and Q.id='" + res.getObject(1) + "' and tags->'amenity'='school';";
+			String request = "SELECT linestring FROM quartier Q , ways W WHERE ST_Intersects(W.bbox,ST_Transform(Q.the_geom,4326)) and Q.id='" + res.getObject(1) + "' and tags->'amenity'='school';";
 			DrawLineByRequest(connection, request, map, c);
-			i += 30;
+			i += 33;
 			c = new Color(i % 255, (i + 50) % 255, (i + 80) % 255);
 		}
 	}
@@ -140,9 +139,6 @@ public class BasicCases {
 		DrawLineByRequest(connection, request, map, Color.RED);
 		request = "SELECT ST_Buffer(geometry(w.linestring)," + raduisSound + ") FROM ways w WHERE exist(w.tags,'railway') AND w.tags->'railway'='rail';";
 		DrawLineByRequest(connection, request, map, Color.RED);
-
-		//request = "SELECT ST_Intersects(ST_Buffer(geometry(w.linestring)," + raduisSound + "),geometry(b.linestring)) FROM ways w, ways b WHERE exist(w.tags,'railway') AND w.tags->'railway'='rail' AND exist(b.tags,'building');";
-		//DrawLineByRequest(request, map, Color.RED);
 
 		request = "SELECT w.linestring FROM ways w WHERE exist(w.tags,'highway');";
 		DrawLineByRequest(connection, request, map, Color.BLACK);
@@ -169,17 +165,18 @@ public class BasicCases {
 			square_nb = lectureClavier.nextInt();/* demande à l'utilisateur la saisie de son nom*/
 			System.out.println("Vous avez saisi " + square_nb);
 		}
-		allRoads(connection, map);
-		System.out.println("map");
 		for (int x = 0; x < square_nb; x++) {
 			for (int y = 0; y < square_nb; y++) {
-				LineString l = new LineString(Color.RED);
-				Point x1 = new Point(GLon_a + ((GLon_b - GLon_a) * x / square_nb),
-						GLat_a + ((GLat_b - GLat_a) * y / square_nb));
+				LineString l = new LineString();
+				double x1_x = GLon_a + ((GLon_b - GLon_a) * x / square_nb);
+				double x1_y = GLat_a + ((GLat_b - GLat_a) * y / square_nb);
+				Point x1 = new Point(x1_x, x1_y);
 				Point x2 = new Point(GLon_a + ((GLon_b - GLon_a) * (x + 1)
 						/ square_nb), GLat_a + ((GLat_b - GLat_a) * y / square_nb));
-				Point x3 = new Point(GLon_a + ((GLon_b - GLon_a) * (x + 1)
-						/ square_nb), GLat_a + ((GLat_b - GLat_a) * (y + 1) / square_nb));
+				double x3_x = GLon_a + ((GLon_b - GLon_a) * (x + 1)
+						/ square_nb);
+				double x3_y = GLat_a + ((GLat_b - GLat_a) * (y + 1) / square_nb);
+				Point x3 = new Point(x3_x, x3_y);
 				Point x4 = new Point(GLon_a + ((GLon_b - GLon_a) * x / square_nb),
 						GLat_a + ((GLat_b - GLat_a) * (y + 1) / square_nb));
 				//line starts at x1
@@ -194,10 +191,43 @@ public class BasicCases {
 				l.addPoint(x1);
 				map.addPrimitive(l);
 				//Count nb building by square
-			}
-		}
+				//select count(*) from ways where exist(tags,'building'); + intersect
+				String request = "select linestring from ways w where"
+						+ " exist(tags,'building') AND ST_Intersects(w.bbox,"
+						+ "ST_SetSRID(ST_MakeBox2D(ST_Point(" + Double.toString(x1_x)
+						+ "," + Double.toString(x1_y) + "),ST_Point(" + Double.toString(x3_x)
+						+ "," + Double.toString(x3_y) + ")),4326))";
+				String request2 = "select count(*) from ways w where"
+						+ " exist(tags,'building') AND ST_Intersects(w.bbox,"
+						+ "ST_SetSRID(ST_MakeBox2D(ST_Point(" + Double.toString(x1_x)
+						+ "," + Double.toString(x1_y) + "),ST_Point(" + Double.toString(x3_x)
+						+ "," + Double.toString(x3_y) + ")),4326))";
+				PreparedStatement stmt = connection.prepareStatement(request2);
+				ResultSet res = stmt.executeQuery();
 
+				while (res.next()) {
+					if(0 < res.getInt(1) && res.getInt(1)<=50){
+					DrawLineByRequest(connection, request, map, Color.blue);
+					}
+					else if(50 < res.getInt(1) && res.getInt(1)<=100){
+					DrawLineByRequest(connection, request, map, Color.green);
+					}
+					else if(100 < res.getInt(1) &&  res.getInt(1)<=300){
+					DrawLineByRequest(connection, request, map, Color.yellow);
+					}
+					else if(300 < res.getInt(1) && res.getInt(1)<=500){
+					DrawLineByRequest(connection, request, map, Color.orange);
+					}
+					else{//>500
+					DrawLineByRequest(connection, request, map, Color.red);
+					}
+				}
+			}
+
+		}
 	}
+
+	
 
 	private static void DrawLineByRequest(Connection connection, String request, MapPanel map, Color color) throws SQLException {
 		if (request.endsWith(";")) {

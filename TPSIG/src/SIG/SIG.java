@@ -46,7 +46,7 @@ public class SIG {
 			System.out.println("D : Show Departments (question 10c)");
 			System.out.println("s : Show Scools (question 11a)");
 			System.out.println("n : Show Noises (question 11b)");
-			System.out.println("d : Show density (question 11c)");
+			System.out.println("d : Show Density (question 11c)");
 
 			choice = lectureClavier.next();
 			map.reset();
