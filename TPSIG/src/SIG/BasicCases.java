@@ -154,7 +154,7 @@ public class BasicCases {
 	 * territoire par carreau de x km de côté, et compter pour chaque carreau 
 	 * le nombre de bâtiments à l'intérieur du carreau.*/
 
-	public static void showDensity(Connection connection, MapPanel map) {
+	public static void showDensity(Connection connection, MapPanel map) throws SQLException {
 		double GLon_a = 5.7;
 		double GLon_b = 5.8;
 		double GLat_a = 45.1;
@@ -169,9 +169,11 @@ public class BasicCases {
 			square_nb = lectureClavier.nextInt();/* demande à l'utilisateur la saisie de son nom*/
 			System.out.println("Vous avez saisi " + square_nb);
 		}
+		allRoads(connection, map);
+		System.out.println("map");
 		for (int x = 0; x < square_nb; x++) {
 			for (int y = 0; y < square_nb; y++) {
-				LineString l = new LineString();
+				LineString l = new LineString(Color.RED);
 				Point x1 = new Point(GLon_a + ((GLon_b - GLon_a) * x / square_nb),
 						GLat_a + ((GLat_b - GLat_a) * y / square_nb));
 				Point x2 = new Point(GLon_a + ((GLon_b - GLon_a) * (x + 1)
@@ -191,6 +193,7 @@ public class BasicCases {
 				//x4 to x1
 				l.addPoint(x1);
 				map.addPrimitive(l);
+				//Count nb building by square
 			}
 		}
 
@@ -216,5 +219,6 @@ public class BasicCases {
 			}
 			map.addPrimitive(l);
 		}
+
 	}
 }
