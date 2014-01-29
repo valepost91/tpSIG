@@ -44,7 +44,7 @@ public class SIG {
 			System.out.println("r : Show Roads (question 10a)");
 			System.out.println("b : Show Buildings (question 10b)");
 			System.out.println("D : Show Departments (question 10c)");
-			System.out.println("s : Show Scools (question 11a)");
+			System.out.println("s : Show Schools (question 11a)");
 			System.out.println("n : Show Noises (question 11b)");
 			System.out.println("d : Show Density (question 11c)");
 
